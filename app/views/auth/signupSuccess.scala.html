@@ -1,0 +1,21 @@
+@()(implicit ctx: Context[_])
+@implicitFieldConstructor = @{ helper.FieldConstructor(fragments.twitterBootstrapInput.f) }
+
+@auth.layout(title = "Signup Succeeded") {
+  <div class="span3">
+    &nbsp;
+  </div>
+  <div class="span7">
+    <div class="well">
+      <h2>Success!</h2>
+
+      <p>
+        You have successfully signed up -- although not logged in.
+      </p>
+
+      <p>
+        Click here to go to <a href="@routes.Application.index">your home page</a>.
+      </p>
+    </div>
+  </div>
+}

@@ -1,0 +1,11 @@
+@(title: String)(body: Html)(implicit ctx: Context[_])
+
+@base.layout(title = title) {
+
+<div class="container">
+  <div class="row">
+    @body
+  </div>
+</div>
+
+}

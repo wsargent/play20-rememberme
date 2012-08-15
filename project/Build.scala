@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 import PlayProject._
 
-object ApplicationBuild extends Build {
+object Build extends Build {
 
   val appName = "play20-rememberme"
   val appVersion = "1.0-SNAPSHOT"
@@ -11,10 +11,14 @@ object ApplicationBuild extends Build {
     "org.mindrot" % "jbcrypt" % "0.3m"
   )
 
-  lazy val play20_auth_module = Project("play20-auth-module", file("module"))
+  val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
+    resolvers += "jbcrypt repo" at "http://mvnrepository.com/",
 
-  val main = PlayProject("sample", appVersion, appDependencies, mainLang = SCALA).settings(
-    resolvers += "jbcrypt repo" at "http://mvnrepository.com/"
-  ).dependsOn(play20_auth_module)
+    // Allow these classes to be seen in templates automatically.
+    templatesImport ++= Seq(
+      "authentication.Context",
+      "models.User"
+    )
+  )
 
 }

@@ -4,13 +4,11 @@ import play.api.mvc._
 import play.api.Logger
 import util.Random
 
-trait ActionHandler {
+trait ActionHandler extends SessionSaver {
 
   def authenticationService: AuthenticationService
 
   def userService : UserInfoService
-
-  def sessionStore: SessionStore
 
   def logger: Logger
 
@@ -77,7 +75,7 @@ trait ActionHandler {
     }
 
     // Return the default.
-    logger.debug("actionWithContext: returning with no credentials {0}" + rawRequest)
+    logger.debug("actionWithContext: returning with no credentials " + rawRequest)
     action(Context(rawRequest, None))
   }
 
@@ -160,11 +158,6 @@ trait ActionHandler {
       }
       case _ => result
     }
-  }
-
-  // Save off the sessionId to user id mapping into cache or other fast storage.
-  def saveAuthentication(userId: String)(implicit req: RequestHeader): String = {
-    sessionStore.saveSession(Random.nextString(20), userId, req)
   }
 
   /**

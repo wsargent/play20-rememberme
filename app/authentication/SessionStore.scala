@@ -10,6 +10,8 @@ import play.api.mvc.RequestHeader
 
 trait SessionStore {
 
+  def deleteSession(sessionId: String) : Boolean
+
   def saveSession(sessionId: String, userId: UserID, header: RequestHeader): String
 
   def lookup(sessionId: String) : Option[UserID]

@@ -1,7 +1,7 @@
-@(message: String)
+@()(implicit ctx: Context[_])
 
-@main("Welcome to Play 2.0") {
-    
-    @play20.welcome(message)
-    
+@base.layout(title = "Hello world!") {
+  <p>
+      This is the main page.
+  </p>
 }

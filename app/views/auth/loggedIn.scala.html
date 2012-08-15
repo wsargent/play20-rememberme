@@ -1,0 +1,12 @@
+@(me: User)(implicit ctx: Context[_])
+
+<div class="auth">
+  <a
+    id="user_tag"
+    class="blank_if_play toggle toggle_auth">
+    <span class="s16">@me.email</span>
+  </a>
+  <div class="links">
+    <a href="@routes.AuthController.logout"><span class="s16 goto_logout">Logout</span></a>
+  </div>
+</div>

@@ -1,0 +1,31 @@
+@(form: Form[_])(implicit ctx: Context[_])
+@implicitFieldConstructor = @{ helper.FieldConstructor(fragments.twitterBootstrapInput.f) }
+
+@auth.layout(title = "Sign Up") {
+<div class="span3">
+  &nbsp;
+</div>
+<div class="span7">
+  <div class="well">
+    <h1>Sign Up</h1>
+
+    @helper.flash()
+
+    @helper.form(action = routes.AuthController.signupPost, 'class -> "form-vertical") {
+
+      @form.globalErrors.map { e =>
+        <p class="error"><span class="label important">e.message</span></p>
+      }
+
+      <fieldset>
+        @auth.formFields(form("fullName"), form("email"), form("password"))
+      </fieldset>
+
+      <div>
+        <input type="submit" class="btn-primary" value="Sign Up" class="submit">
+        <span class="alternative">Already have an account? <a href="@routes.AuthController.login">Sign In</a></span>
+      </div>
+    }
+  </div>
+</div>
+}

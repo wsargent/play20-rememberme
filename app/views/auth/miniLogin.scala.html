@@ -1,0 +1,27 @@
+@()(implicit ctx: Context[_])
+
+@helper.form(action = routes.AuthController.authenticate, 'class -> "form-vertical") {
+<fieldset>
+  <div class="control-group">
+    <label class="control-label" for="email"></label>
+    <div class="controls">
+      <input placeholder="Email" type="text" class="email" name="email" id="email"/>
+    </div>
+
+    <label class="control-label" for="password"></label>
+    <div class="controls">
+      <input placeholder="Password" type="password" class="password" name="password" id="password"/>
+    </div>
+
+    <div class="controls">
+      <input id="rememberMe" style="float: left; margin-right: 10px;" type="checkbox" name="rememberMe" value="true"/>
+      <label class="control-label string optional" for="rememberMe"> Remember me</label>
+    </div>
+
+    <div class="actions">
+      <input class="btn btn-primary" style="clear: left; width: 100%; height: 32px; font-size: 13px;" type="submit"
+             name="commit" value="Sign In"/>
+    </div>
+  </div>
+</fieldset>
+}

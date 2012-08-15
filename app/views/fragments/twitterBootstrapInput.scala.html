@@ -1,0 +1,16 @@
+@(elements: helper.FieldElements)
+
+@*
+ * Generate input according twitter bootstrap rules
+ * Note that this file is needed for twitter bootstrap 2, the helper is for bootstrap 1.
+ *@
+<div class="control-group @if(elements.hasErrors) {error}">
+  <label class="control-label" for="@elements.id">@elements.label</label>
+  <div class="controls">
+    @elements.input
+    <p class="help-block">@elements.infos.mkString(", ")</p>
+    @if(elements.hasErrors) {
+    <p class="help-block">@elements.errors.mkString(", ")</p>
+    }
+  </div>
+</div>

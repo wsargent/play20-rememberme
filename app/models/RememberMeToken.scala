@@ -16,7 +16,7 @@ object RememberMeToken {
         SQL(
           """
               insert into token values (
-                {user_id}, {name}, {password}
+                {user_id}, {series}, {token}
               )
           """
         ).on(
@@ -34,7 +34,7 @@ object RememberMeToken {
       implicit connection =>
         SQL(
           """
-            delete from token where user_id = {userid} and series = {series} and token = {token}
+            delete from token where user_id = {user_id} and series = {series} and token = {token}
           """
         ).on(
           'user_id -> token.userId,
@@ -50,7 +50,7 @@ object RememberMeToken {
       implicit connection =>
         SQL(
           """
-            delete from token where user_id = {userid}
+            delete from token where user_id = {user_id}
           """
         ).on(
           'user_id -> d.toString
@@ -62,7 +62,7 @@ object RememberMeToken {
    * Parse a User from a ResultSet
    */
   val simple = {
-    get[String]("token.userId") ~
+    get[String]("token.user_id") ~
       get[Long]("token.series") ~
       get[Long]("token.token") map {
       case userId ~ series ~ token => RememberMeToken(userId, series, token)
@@ -72,8 +72,8 @@ object RememberMeToken {
   def findByUserIdAndSeries(userId: String, series: Long): Option[RememberMeToken] = {
     DB.withConnection {
       implicit connection =>
-        SQL("select * from token where user_id = {userId}").on(
-          'userId -> userId,
+        SQL("select * from token where user_id = {user_id}").on(
+          'user_id -> userId,
           'series -> series
         ).as(RememberMeToken.simple.singleOpt)
     }

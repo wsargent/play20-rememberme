@@ -15,6 +15,15 @@ case class User(email: String, name: String, password: String)
  */
 object User extends UserInfoService {
 
+  def register(email: String, name:String, password: String) : Either[Exception,User] = {
+    try {
+      val user = User(email, name, password)
+      Right(create(user))
+    } catch {
+      case e:Exception => Left(e)
+    }
+  }
+
   // -- Parsers
 
   /**

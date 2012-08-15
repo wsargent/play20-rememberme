@@ -1,0 +1,69 @@
+title=Remember Me
+
+confirm=Confirmation
+email=Email
+fullname=Full Name
+goback=Go Back
+logout=Logout
+password=Password
+error.technical=Technical Error, please Retry
+validate=Validate
+reset=Reset
+
+account.not.validated.check.mail=Account not validated. Check your emails.
+account.successfully.validated=Account successfully validated
+invalid.user.or.password=Invalid user or password
+youve.been.logged.out=You've been logged out
+error.sending.email=Error sending email
+error.sending.confirm.email=Error while sending confirmation mail
+error.email.already.exist=Email already exist
+error.account.already.validated=Account already validated
+error.unknown.email=Unknown email
+error.confirm=Confirmation failed
+error.expiredresetlink=This password reset has expired.
+
+signin.signin=Sign In
+signin.your.email=Email address
+signin.your.username=Username
+signin.your.password=Password
+
+forgot.password=Forgot password ?
+
+signup.signup=Sign Up
+signup.successfull=Sign Up - Successful !
+signup.new=New ?
+signup.valid.email=Please choose a valid Email
+signup.valid.fullname=Please choose a valid Full Name
+signup.valid.password=Please choose a Password
+signup.reset.password=Reset your password
+signup.msg.created=You will receive a confirmation email soon. Check your email to activate your account.
+
+resetpassword=Reset Password
+resetpassword.mailsent=A mail has been sent, please check your mail.
+resetpassword.success=A new password has been sent. Please check your mail.
+
+
+# Default messages
+
+# --- Constraints
+constraint.required=Required
+constraint.min=Minimum value: {0}
+constraint.max=Maximum value: {0}
+constraint.minLength=Minimum length: {0}
+constraint.maxLength=Maximum length: {0}
+constraint.email=Email
+
+# --- Formats
+format.date=Date (''{0}'')
+format.numeric=Numeric
+
+# --- Errors
+error.invalid=Invalid value
+error.required=This field is required
+error.number=Numeric value expected
+error.min=Must be greater or equal to {0}
+error.max=Must be less or equal to {0}
+error.minLength=Minimum length is {0}
+error.maxLength=Maximum length is {0}
+error.email=Valid email required
+error.pattern=Must satisfy {0}

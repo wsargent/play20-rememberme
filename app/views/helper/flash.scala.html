@@ -1,0 +1,12 @@
+@()(implicit ctx: Context[_])
+
+@import helper._
+@import helper.twitterBootstrap._
+
+@ctx.flash.data.map {
+  case (key, value) => {
+    <p class="alert alert-@key">
+      <span>@value</span>
+    </p>
+  }
+}

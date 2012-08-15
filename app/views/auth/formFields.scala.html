@@ -1,0 +1,24 @@
+@(fullName:Field, email: Field, password: Field)(implicit ctx: Context[_])
+
+@implicitFieldConstructor = @{ helper.FieldConstructor(fragments.twitterBootstrapInput.f) }
+
+@helper.inputText(
+    fullName,
+   '_label -> null,
+   'placeholder -> "Full Name",
+   '_help -> "Full Name"
+)
+
+@helper.inputText(
+    email,
+    '_label -> null,
+    '_help -> Messages("signin.your.email"),
+    'placeholder -> Messages("email")
+)
+
+@helper.inputClearPassword(
+    password,
+    '_label -> null,
+    '_help -> Messages("signin.your.password"),
+    'placeholder -> Messages("password")
+)

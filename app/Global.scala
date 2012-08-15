@@ -1,12 +1,18 @@
+import controllers.AuthController
 import models.{SessionCache, User, BasicAuthenticationService}
 import play.api._
 import play.api.mvc._
 
 import authentication.ActionHandler
-import play.mvc.Results.Redirect
 
 object Global extends GlobalSettings {
 
+  /**
+   * For every single request, find a matching handler.  If it's an Action[_], wrap it with the action handler first.
+   *
+   * @param request the raw request.
+   * @return an optional handler.
+   */
   override def onRouteRequest(request: RequestHeader): Option[Handler] = {
     super.onRouteRequest(request).map {
       handler =>
@@ -17,7 +23,12 @@ object Global extends GlobalSettings {
     }
   }
 
+  /**
+   * An action handler with all the dependencies resolved.
+   */
   object MyActionHandler extends ActionHandler {
+
+    def logger = Logger(this.getClass)
 
     def authenticationService = BasicAuthenticationService
 
@@ -29,8 +40,8 @@ object Global extends GlobalSettings {
       actionHandler(action)
     }
 
-    def gotoSuspiciousAuthDetected[A](request: Request[A]) = {
-      controllers.Application.index()
+    def gotoSuspiciousAuthDetected[A](request: Request[A]) : Result = {
+      AuthController.suspiciousActivity(request)
     }
   }
 

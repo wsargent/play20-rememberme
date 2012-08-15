@@ -1,0 +1,57 @@
+@(title: String)(body: Html)(implicit ctx: Context[_])
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>Remember Me</title>
+
+  <link rel="stylesheet" media="screen" href='@routes.Assets.at("stylesheets/bootstrap.css")'/>
+</head>
+<body>
+
+  <div id="header">
+    @base.header()
+  </div>
+
+  <div id="content">
+    @body
+  </div>
+
+  <div id="footer">
+    @base.footer()
+  </div>
+
+  <script type="text/javascript" src='@routes.Assets.at("javascripts/jquery-1.7.1.js")'></script>
+  <script type="text/javascript" src='@routes.Assets.at("javascripts/bootstrap.js")'></script>
+
+  <script type="text/javascript">
+      // Fix dropdown login
+      $(function() {
+        var activeDropdown = {};
+        // Imitates behavior of Twitter Bootstrap dropdown(),
+        // without closing immediately on click
+        $('.dropdown-panel-toggle').click(function(e) {
+          e.preventDefault();
+          $(this).parent().addClass('open');
+          activeDropdown.menu = $(this).siblings('.dropdown-menu');
+          activeDropdown.opener = $(this).parent();
+
+          // Bind click handler to displayed menu
+          $(document).on('click', panelToggleHandler);
+        });
+
+        var panelToggleHandler = function(event) {
+          if (!($(event.target).attr('id') == $(activeDropdown.menu).attr('id') ||
+                  $(event.target).hasClass('dropdown-panel-toggle'))) {
+            $(activeDropdown.opener).removeClass('open');
+            $(document).off('click', panelToggleHandler);
+          }
+        };
+      });
+  </script>
+
+</body>
+</html>
