@@ -1,3 +1,5 @@
+package com.tersesystems
+
 package authentication
 
 /**
@@ -5,7 +7,7 @@ package authentication
  *
  * @author wsargent
  */
-trait UserInfoService {
+trait UserInfoService[UserID, UserInfo] {
 
   def lookup(userId:UserID) : Option[UserInfo]
 

@@ -11,14 +11,16 @@ object Build extends Build {
     "org.mindrot" % "jbcrypt" % "0.3m"
   )
 
+  lazy val module = Project("module", file("module"))
+
   val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
     resolvers += "jbcrypt repo" at "http://mvnrepository.com/",
 
     // Allow these classes to be seen in templates automatically.
     templatesImport ++= Seq(
-      "authentication.Context",
+      "security.MyContext",
       "models.User"
     )
-  )
+  ).aggregate(module).dependsOn(module)
 
 }

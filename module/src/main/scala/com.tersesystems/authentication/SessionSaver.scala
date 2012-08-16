@@ -1,3 +1,6 @@
+package com.tersesystems
+
+
 package authentication
 
 import play.api.mvc.RequestHeader
@@ -9,12 +12,12 @@ import util.Random
  * @since 8/14/12
  */
 
-trait SessionSaver {
+trait SessionSaver[UserID] {
 
-  def sessionStore: SessionStore
+  def sessionStore: SessionStore[UserID]
 
   // Save off the sessionId to user id mapping into cache or other fast storage.
-  def saveAuthentication(userId: String)(implicit req: RequestHeader): String = {
+  def saveAuthentication(userId: UserID)(implicit req: RequestHeader): String = {
     sessionStore.saveSession(Random.nextString(20), userId, req)
   }
 

@@ -1,16 +1,20 @@
-package authentication
+package com.tersesystems.authentication
 
 import play.api.mvc._
 import play.api.Logger
 import util.Random
 
-trait ActionHandler extends SessionSaver {
+trait ActionHandler[UserID, UserInfo] extends SessionSaver[UserID] {
 
-  def authenticationService: AuthenticationService
+  def authenticationService: AuthenticationService[UserID]
 
-  def userService : UserInfoService
+  def userService : UserInfoService[UserID, UserInfo]
 
   def logger: Logger
+
+  def contextConverter : ContextConverter[UserInfo]
+
+  def userIdConverter : UserIdConverter[UserID]
 
   def gotoSuspiciousAuthDetected[A](request: Request[A]): Result
 
@@ -46,10 +50,11 @@ trait ActionHandler extends SessionSaver {
     withRememberMeCookie(rawRequest).map {
       rememberMe =>
         for {
-          userId <- rememberMe.userId
+          userIdString <- rememberMe.userId
           series <- rememberMe.series
           token <- rememberMe.token
         } yield {
+          val userId = userIdConverter(userIdString)
           val result = authenticationService.authenticateWithCookie(userId, series, token).fold(
             fault => actionRejectingAuthentication(rawRequest) {
               request =>
@@ -76,7 +81,7 @@ trait ActionHandler extends SessionSaver {
 
     // Return the default.
     logger.debug("actionWithContext: returning with no credentials " + rawRequest)
-    action(Context(rawRequest, None))
+    action(contextConverter(rawRequest, None))
   }
 
   /**
@@ -86,11 +91,11 @@ trait ActionHandler extends SessionSaver {
    * @tparam A
    * @return
    */
-  def withSessionCredentials[A](rawRequest: Request[A]): Option[Context[A]] = {
+  def withSessionCredentials[A](rawRequest: Request[A]): Option[Context[A, UserInfo]] = {
     for {
       sessionId <- rawRequest.session.get("sessionId")
       userInfo <- restoreFromSession(sessionId)
-    } yield Context(rawRequest, Some(userInfo))
+    } yield contextConverter(rawRequest, Some(userInfo))
   }
 
   /**
@@ -115,7 +120,7 @@ trait ActionHandler extends SessionSaver {
    * @return
    */
   def actionRejectingAuthentication[A](request: Request[A])(action: Request[A] => Result): Result = {
-    val context = Context(request, None)
+    val context = contextConverter(request, None)
     val result = action(context)
     result match {
       case plainResult: PlainResult => {
@@ -136,10 +141,10 @@ trait ActionHandler extends SessionSaver {
    * @tparam A the type of request
    * @return the result of the action composition.
    */
-  def actionWithAuthentication[A](rawRequest: Request[A], event: UserAuthenticatedWithTokenEvent)(action: Request[A] => Result): Result = {
+  def actionWithAuthentication[A](rawRequest: Request[A], event: UserAuthenticatedWithTokenEvent[UserID])(action: Request[A] => Result): Result = {
 
     // Defer the action until we have the authentication saved off...
-    val userId = event.userId
+    val userId : UserID = event.userId
     val sessionId = saveAuthentication(userId)(rawRequest)
     val sessionCookie = SessionCookie("sessionId", sessionId)(rawRequest)
 
@@ -149,8 +154,8 @@ trait ActionHandler extends SessionSaver {
 
     // Look up and save off the user information for the rest of the action...
     val userInfo = userService.lookup(userId)
-    val richRequest = Context(rawRequest, userInfo)
-    val result = action(richRequest)
+    val context = contextConverter(rawRequest, userInfo)
+    val result = action(context)
     result match {
       case plainResult: PlainResult => {
         logger.debug("Creating new remember me cookie " + rememberMe)

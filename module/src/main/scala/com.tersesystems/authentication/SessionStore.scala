@@ -1,3 +1,5 @@
+package com.tersesystems
+
 package authentication
 
 import play.api.mvc.RequestHeader
@@ -8,7 +10,7 @@ import play.api.mvc.RequestHeader
  * @since 8/14/12
  */
 
-trait SessionStore {
+trait SessionStore[UserID] {
 
   def deleteSession(sessionId: String) : Boolean
 

@@ -1,9 +1,7 @@
-import controllers.AuthController
-import models.{SessionCache, User, BasicAuthenticationService}
 import play.api._
 import play.api.mvc._
 
-import authentication.ActionHandler
+import security.MyActionHandler
 
 object Global extends GlobalSettings {
 
@@ -20,28 +18,6 @@ object Global extends GlobalSettings {
           case a: Action[_] => MyActionHandler(a)
           case _ => handler
         }
-    }
-  }
-
-  /**
-   * An action handler with all the dependencies resolved.
-   */
-  object MyActionHandler extends ActionHandler {
-
-    def logger = Logger(this.getClass)
-
-    def authenticationService = BasicAuthenticationService
-
-    def userService = User
-
-    def sessionStore = SessionCache
-
-    def apply[A](action: Action[A]): Action[A] = {
-      actionHandler(action)
-    }
-
-    def gotoSuspiciousAuthDetected[A](request: Request[A]) : Result = {
-      AuthController.suspiciousActivity(request)
     }
   }
 

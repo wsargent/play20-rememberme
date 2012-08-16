@@ -45,7 +45,7 @@ object RememberMeToken {
   }
 
 
-  def removeTokensForUser(d: authentication.UserID) {
+  def removeTokensForUser(d: String) {
     DB.withConnection {
       implicit connection =>
         SQL(

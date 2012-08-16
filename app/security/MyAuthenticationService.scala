@@ -1,35 +1,33 @@
-package models
+package security
 
-import authentication._
-import scala.Left
-import authentication.UserAuthenticatedEvent
-import authentication.InvalidCredentialsFault
-import authentication.UserAuthenticatedWithTokenEvent
-import scala.Right
+import com.tersesystems.authentication._
+
 import util.Random
+
 import play.api.Logger
+import models.{RememberMeToken, User}
 
 /**
+ * An example of authentication service.  The logic flow here is important.
  *
  * @author wsargent
  * @since 8/14/12
  */
-
-object BasicAuthenticationService extends AuthenticationService {
+object MyAuthenticationService extends AuthenticationService[String] {
 
   private lazy val logger = Logger("models.BasicAuthenticationService")
 
   /**
    * Authenticate a User.
    */
-  def authenticate(email: String, password: String, rememberMe: Boolean): Either[AuthenticationFault, UserAuthenticatedEvent] = {
+  def authenticate(email: String, password: String, rememberMe: Boolean): Either[AuthenticationFault, UserAuthenticatedEvent[String]] = {
     logger.debug("authenticate")
     val userOption = User.authenticate(email, password)
 
     userOption.map {
       user =>
-        // When the user successfully logs in with Remember Me checked, a login cookie is issued in addition to the
-        // standard session management cookie.[2]
+      // When the user successfully logs in with Remember Me checked, a login cookie is issued in addition to the
+      // standard session management cookie.[2]
         logger.debug("authenticate: right, rememberMe = " + rememberMe)
         val token = rememberMe match {
           case true => {
@@ -46,13 +44,13 @@ object BasicAuthenticationService extends AuthenticationService {
     }.getOrElse(Left(InvalidCredentialsFault()))
   }
 
-  def authenticateWithCookie(userId: authentication.UserID, series: Long, token: Long): Either[AuthenticationFault, UserAuthenticatedWithTokenEvent] = {
+  def authenticateWithCookie(userId: String, series: Long, token: Long): Either[AuthenticationFault, UserAuthenticatedWithTokenEvent[String]] = {
 
     // When a non-logged-in user visits the site and presents a login cookie, the username, series, and token are
     // looked up in the database.
     RememberMeToken.findByUserIdAndSeries(userId, series).map {
       rememberMeToken =>
-        // If the triplet is present, the user is considered authenticated.
+      // If the triplet is present, the user is considered authenticated.
         if (rememberMeToken.token == token) {
           // The used token is removed from the database.
           RememberMeToken.remove(rememberMeToken)

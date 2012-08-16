@@ -1,3 +1,5 @@
+package com.tersesystems
+
 package authentication
 
 import play.api.Play
@@ -36,7 +38,10 @@ case class RememberMe(data: Map[String, String] = Map.empty[String, String]) {
 
   def series: Option[Long] = AsLong(data.get(SERIES_NAME))
 
-  def userId: Option[UserID] = data.get(USER_ID_NAME)
+  /**
+   * XXX If there's a way to do type conversion given a raw string, I don't know it.  Default to String.
+   */
+  def userId: Option[String] = data.get(USER_ID_NAME)
 
   def token: Option[Long] = AsLong(data.get(TOKEN_NAME))
 
@@ -48,7 +53,7 @@ case class RememberMe(data: Map[String, String] = Map.empty[String, String]) {
  */
 object RememberMe extends CookieBaker[RememberMe] {
 
-  def apply(userId: UserID, series: Long, token: Long): RememberMe = {
+  def apply[UserID](userId: UserID, series: Long, token: Long): RememberMe = {
     val map = Map(
       RememberMe.USER_ID_NAME -> userId.toString,
       RememberMe.SERIES_NAME -> series.toString,

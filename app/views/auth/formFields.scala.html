@@ -1,4 +1,4 @@
-@(fullName:Field, email: Field, password: Field)(implicit ctx: Context[_])
+@(fullName:Field, email: Field, password: Field)(implicit ctx: MyContext[_])
 
 @implicitFieldConstructor = @{ helper.FieldConstructor(fragments.twitterBootstrapInput.f) }
 

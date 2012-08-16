@@ -6,14 +6,14 @@ import play.api.Play.current
 import anorm._
 import anorm.SqlParser._
 
-import authentication.UserInfoService
+import com.tersesystems.authentication.UserInfoService
 
 case class User(email: String, name: String, password: String)
 
 /**
  * Taken straight from the example Zentasks project.
  */
-object User extends UserInfoService {
+object User extends UserInfoService[String, User] {
 
   def register(email: String, name:String, password: String) : Either[Exception,User] = {
     try {
@@ -101,5 +101,5 @@ object User extends UserInfoService {
   }
 
 
-  def lookup(userId: authentication.UserID) = findByEmail(userId)
+  def lookup(userId: String) = findByEmail(userId)
 }

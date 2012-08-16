@@ -1,7 +1,5 @@
 package controllers
 
-import authentication._
-
 import play.api.mvc._
 import play.api.Logger
 import play.api.data.Form
@@ -10,11 +8,11 @@ import play.api.data.Forms._
 import models._
 
 import views._
-import authentication.UserAuthenticatedEvent
-import scala.Some
 import play.api.mvc.Cookie
+import com.tersesystems.authentication._
+import security.{MySessionStore, MyAuthenticationService}
 
-object AuthController extends Controller with SessionSaver with BaseActions {
+object AuthController extends Controller with SessionSaver[String] with BaseActions {
 
   val FLASH_INFO = "info"
   val FLASH_ERROR = "error"
@@ -22,11 +20,9 @@ object AuthController extends Controller with SessionSaver with BaseActions {
 
   def logger = Logger(this.getClass)
 
-  def userInfoService = User
+  def sessionStore = MySessionStore
 
-  def sessionStore = SessionCache
-
-  def authenticationService = BasicAuthenticationService
+  def authenticationService = MyAuthenticationService
 
     val signupForm = Form(
       mapping(
@@ -99,7 +95,7 @@ object AuthController extends Controller with SessionSaver with BaseActions {
           BadRequest(html.auth.signup(err))
         },
         data => {
-          userInfoService.register(data.email, data.fullName, data.password).fold(
+          User.register(data.email, data.fullName, data.password).fold(
             fault => {
               logger.error("error = " + fault)
               val form = signupForm
@@ -127,7 +123,7 @@ object AuthController extends Controller with SessionSaver with BaseActions {
     Redirect(routes.Application.index()) withCookies SessionCookie("access_uri", req.uri)
   }
 
-  def gotoLoginSucceeded[A](userId: UserID, series: Option[Long], token: Option[Long])(implicit req: RequestHeader) = {
+  def gotoLoginSucceeded[A](userId: String, series: Option[Long], token: Option[Long])(implicit req: RequestHeader) = {
     logger.debug("gotoLoginSucceeded: login succeeded, userId = " + userId)
     val sessionId = saveAuthentication(userId)
     val sessionCookie = SessionCookie("sessionId", sessionId)
@@ -145,18 +141,18 @@ object AuthController extends Controller with SessionSaver with BaseActions {
     loginSucceeded(req) withCookies (cookies: _*)
   }
 
-  def gotoSignupSucceeded[A](userId: UserID)(implicit req: RequestHeader) = {
+  def gotoSignupSucceeded[A](userId: String)(implicit req: RequestHeader) = {
     logger.debug("gotoSignupSucceeded")
     Redirect(routes.AuthController.signupSuccess())
   }
 
-  def gotoConfirmSucceeded[A](userId: UserID)(implicit req: RequestHeader) = {
+  def gotoConfirmSucceeded[A](userId: String)(implicit req: RequestHeader) = {
     val sessionId = saveAuthentication(userId)
     val flash = Flash(Map(FLASH_SUCCESS -> "You have been confirmed."))
     Redirect(routes.Application.index()) withCookies SessionCookie("sessionId", sessionId) flashing (flash)
   }
 
-  def gotoPasswordResetSucceeded[A](userId: UserID)(implicit req: RequestHeader) = {
+  def gotoPasswordResetSucceeded[A](userId: String)(implicit req: RequestHeader) = {
     val sessionId = saveAuthentication(userId)
     val flash = Flash(Map(FLASH_SUCCESS -> "Your password has been reset."))
     Redirect(routes.Application.index()) withCookies SessionCookie("sessionId", sessionId) flashing (flash)
@@ -180,7 +176,7 @@ object AuthController extends Controller with SessionSaver with BaseActions {
     Redirect(routes.AuthController.login()) discardingCookies (RememberMe.COOKIE_NAME) flashing (FLASH_ERROR -> "Cannot login with username/password")
   }
 
-  def authenticateUser(email: String, password: String, rememberMe: Boolean): Option[UserAuthenticatedEvent] = {
+  def authenticateUser(email: String, password: String, rememberMe: Boolean): Option[UserAuthenticatedEvent[String]] = {
     authenticationService.authenticate(email, password, rememberMe).fold(
       fault => {
         logger.debug("authenticateUser: failed")

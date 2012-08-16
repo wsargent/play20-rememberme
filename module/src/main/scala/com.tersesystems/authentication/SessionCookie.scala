@@ -1,3 +1,6 @@
+package com.tersesystems
+
+
 package authentication
 
 import play.api.mvc.{ Cookie, Session, RequestHeader }

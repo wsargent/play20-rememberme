@@ -1,4 +1,4 @@
-@(form: Form[_])(implicit ctx: Context[_])
+@(form: Form[_])(implicit ctx: MyContext[_])
 @implicitFieldConstructor = @{ helper.FieldConstructor(fragments.twitterBootstrapInput.f) }
 
 @auth.layout(title = "Sign Up") {
