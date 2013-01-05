@@ -11,7 +11,7 @@ object Build extends Build {
     "org.mindrot" % "jbcrypt" % "0.3m"
   )
 
-  val module = Project(id = "remember-me", base = file("renderer"),
+  val module = Project(id = "remember-me", base = file("module"),
     settings = Defaults.defaultSettings ++ PlayProject.intellijCommandSettings("SCALA"))
 
   val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
