@@ -73,7 +73,7 @@ object RememberMe extends CookieBaker[RememberMe] {
 
   override val isSigned = true
   override val secure = Play.maybeApplication.flatMap(_.configuration.getBoolean("rememberMe.secure")).getOrElse(false)
-  override val maxAge = Play.maybeApplication.flatMap(_.configuration.getInt("rememberMe.maxAge")).getOrElse(DEFAULT_MAX_AGE)
+  override val maxAge = Play.maybeApplication.flatMap(_.configuration.getInt("rememberMe.maxAge"))
 
   def deserialize(data: Map[String, String]) = new RememberMe(data)
 
