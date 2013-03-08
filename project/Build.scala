@@ -15,8 +15,8 @@ object ApplicationBuild extends Build {
    filters
   )
 
-  // XXX You have to comment this out running "play idea", otherwise you get an exception 
-  val module = Project(id = "remember-me", base = file("module"))
+  // XXX You have to comment this out running "play idea", otherwise you get an exception
+  val module = Project(id = "remember-me", base = file("authentication"))
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     resolvers += "jbcrypt repo" at "http://mvnrepository.com/",
