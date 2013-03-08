@@ -10,7 +10,7 @@
 
         @helper.form(action = routes.AuthController.authenticate, 'class -> "form-vertical") {
 
-        @form.globalErrors errors map { e =>
+        @form.errors.map { e =>
           <p class="error"><span class="label important">e.message</span></p>
         }
 
