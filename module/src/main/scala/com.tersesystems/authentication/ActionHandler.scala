@@ -19,8 +19,8 @@ trait ActionHandler[UserID, UserInfo] extends SessionSaver[UserID] {
 
   def gotoSuspiciousAuthDetected[A](request: Request[A]): Result
 
-  def actionHandler[A](action: Action[A]): Action[A] = {
-    Action(action.parser) {
+  def actionHandler[A](bp: BodyParser[A])(action: Request[A] => Result): Action[A] = {
+    Action(bp) {
       rawRequest =>
         if (requiresContext(rawRequest)) {
           actionWithContext(rawRequest) {
