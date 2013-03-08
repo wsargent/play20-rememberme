@@ -2,7 +2,8 @@ package com.tersesystems.authentication
 
 import play.api.mvc._
 import play.api.Logger
-import util.Random
+
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 trait ActionHandler[UserID, UserInfo] extends SessionSaver[UserID] {
 
@@ -87,9 +88,9 @@ trait ActionHandler[UserID, UserInfo] extends SessionSaver[UserID] {
   /**
    * Returns a context, using the underlying session id.
    *
-   * @param rawRequest
-   * @tparam A
-   * @return
+   * @param rawRequest the initial request
+   * @tparam A the request type
+   * @return the context, if it exists.
    */
   def withSessionCredentials[A](rawRequest: Request[A]): Option[Context[A, UserInfo]] = {
     for {
@@ -101,7 +102,7 @@ trait ActionHandler[UserID, UserInfo] extends SessionSaver[UserID] {
   /**
    * Restores the user using the session id.
    *
-   * @param sessionId
+   * @param sessionId the session id from the cookie.
    * @return
    */
   def restoreFromSession(sessionId: String): Option[UserInfo] = {
@@ -114,20 +115,23 @@ trait ActionHandler[UserID, UserInfo] extends SessionSaver[UserID] {
   /**
    * The remember me cookie was not valid for some reason.  Run through the action without any authed user.
    *
-   * @param request
-   * @param action
-   * @tparam A
+   * @param request the current request
+   * @param action the current action
+   * @tparam A the request body type
    * @return
    */
   def actionRejectingAuthentication[A](request: Request[A])(action: Request[A] => Result): Result = {
     val context = contextConverter(request, None)
     val result = action(context)
+    val cookie = DiscardingCookie(RememberMe.COOKIE_NAME)
     result match {
       case plainResult: PlainResult => {
         logger.debug("discarding remember me cookie")
-        plainResult.discardingCookies(RememberMe.COOKIE_NAME)
+        plainResult.discardingCookies(cookie)
       }
-      case _ => result
+      case asyncResult:AsyncResult => {
+        asyncResult.transform(_.discardingCookies(cookie))
+      }
     }
   }
 

@@ -162,7 +162,8 @@ object AuthController extends Controller with SessionSaver[String] with BaseActi
     req.session.get("sessionId") foreach {
       sessionStore.deleteSession(_)
     }
-    logoutSucceeded(req).withNewSession discardingCookies (RememberMe.COOKIE_NAME)
+    val cookies = DiscardingCookie(RememberMe.COOKIE_NAME)
+    logoutSucceeded(req).withNewSession discardingCookies (cookies)
   }
 
   def loginSucceeded(req: RequestHeader): PlainResult = {
@@ -173,7 +174,8 @@ object AuthController extends Controller with SessionSaver[String] with BaseActi
 
   def authorizationFailed(req: RequestHeader): PlainResult = {
     logger.debug("authorizationFailed")
-    Redirect(routes.AuthController.login()) discardingCookies (RememberMe.COOKIE_NAME) flashing (FLASH_ERROR -> "Cannot login with username/password")
+    val cookies = DiscardingCookie(RememberMe.COOKIE_NAME)
+    Redirect(routes.AuthController.login()) discardingCookies (cookies) flashing (FLASH_ERROR -> "Cannot login with username/password")
   }
 
   def authenticateUser(email: String, password: String, rememberMe: Boolean): Option[UserAuthenticatedEvent[String]] = {
