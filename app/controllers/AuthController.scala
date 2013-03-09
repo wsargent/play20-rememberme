@@ -20,6 +20,9 @@ object AuthController extends Controller with SessionSaver[String] with BaseActi
 
   def authenticationService = MyAuthenticationService
 
+  //---------------------------------------------------------------------------
+  // Login
+
   val loginForm = Form(mapping(
     "email" -> email,
     "password" -> nonEmptyText,
@@ -28,22 +31,29 @@ object AuthController extends Controller with SessionSaver[String] with BaseActi
     .verifying("Invalid username or password", _.isDefined)
   )
 
+  private def authenticateUser(email: String, password: String, rememberMe: Boolean): Option[UserAuthenticatedEvent[String]] = {
+    authenticationService.authenticate(email, password, rememberMe).fold(
+      fault => {
+        logger.debug("authenticateUser: failed")
+        None
+      },
+      event => Some(event)
+    )
+  }
+
+  // GET
   def login = Open {
     implicit ctx =>
       Ok(html.auth.login(loginForm))
   }
 
-  def suspicious = Open {
-    implicit ctx =>
-      Ok(html.auth.suspicious())
-  }
-
+  // POST
   def authenticate = Open {
     implicit ctx =>
       loginForm.bindFromRequest.fold(
         err => {
           logger.debug("Bad request: err = " + err)
-          authorizationFailed(ctx)
+          loginFailed(ctx)
         },
         eventOption => {
           eventOption.map { event =>
@@ -51,29 +61,16 @@ object AuthController extends Controller with SessionSaver[String] with BaseActi
           }.getOrElse {
             // No event found, something bad happened.
             logger.error("authenticate: could not log in")
-            authorizationFailed(ctx)
+            loginFailed(ctx)
           }
         }
       )
   }
 
-  def logout = Open {
-    implicit ctx =>
-      gotoLogoutSucceeded(ctx)
-  }
-
-  def logoutSucceeded(req: RequestHeader): PlainResult = {
-    logger.debug("logoutSucceeded")
-    Redirect(routes.Application.index())
-  }
-
-  def suspiciousActivity(implicit req: RequestHeader): PlainResult = {
-    Redirect(routes.AuthController.suspicious())
-  }
-
-  def authenticationFailed(implicit req: RequestHeader): PlainResult = {
-    logger.debug("authenticationFailed: " + req)
-    Redirect(routes.Application.index()) withCookies SessionCookie("access_uri", req.uri)
+  def loginSucceeded(req: RequestHeader): PlainResult = {
+    val uri = req.session.get("access_uri").getOrElse(routes.Application.index().url)
+    req.session - "access_uri"
+    Redirect(uri)
   }
 
   def gotoLoginSucceeded[A](userId: String, series: Option[Long], token: Option[Long])(implicit req: RequestHeader) = {
@@ -94,6 +91,25 @@ object AuthController extends Controller with SessionSaver[String] with BaseActi
     loginSucceeded(req) withCookies (cookies: _*)
   }
 
+  def loginFailed(implicit req: RequestHeader): PlainResult = {
+    logger.debug("authenticationFailed: " + req)
+    val cookies = DiscardingCookie(RememberMe.COOKIE_NAME)
+    Redirect(routes.AuthController.login()) discardingCookies (cookies) flashing (FLASH_ERROR -> "Cannot login with username/password")
+  }
+
+  //---------------------------------------------------------------------------
+  // Logout
+
+  def logout = Open {
+    implicit ctx =>
+      gotoLogoutSucceeded(ctx)
+  }
+
+  def logoutSucceeded(req: RequestHeader): PlainResult = {
+    logger.debug("logoutSucceeded")
+    Redirect(routes.Application.index())
+  }
+
   def gotoLogoutSucceeded(implicit req: RequestHeader) = {
     req.session.get("sessionId") foreach {
       sessionStore.deleteSession(_)
@@ -102,25 +118,16 @@ object AuthController extends Controller with SessionSaver[String] with BaseActi
     logoutSucceeded(req).withNewSession discardingCookies (cookies)
   }
 
-  def loginSucceeded(req: RequestHeader): PlainResult = {
-    val uri = req.session.get("access_uri").getOrElse(routes.Application.index().url)
-    req.session - "access_uri"
-    Redirect(uri)
+  //---------------------------------------------------------------------------
+  // Suspicious cookie activity
+
+  def suspicious = Open {
+    implicit ctx =>
+      Ok(html.auth.suspicious())
   }
 
-  def authorizationFailed(req: RequestHeader): PlainResult = {
-    logger.debug("authorizationFailed")
-    val cookies = DiscardingCookie(RememberMe.COOKIE_NAME)
-    Redirect(routes.AuthController.login()) discardingCookies (cookies) flashing (FLASH_ERROR -> "Cannot login with username/password")
+  def suspiciousActivity(implicit req: RequestHeader): PlainResult = {
+    Redirect(routes.AuthController.suspicious())
   }
 
-  def authenticateUser(email: String, password: String, rememberMe: Boolean): Option[UserAuthenticatedEvent[String]] = {
-    authenticationService.authenticate(email, password, rememberMe).fold(
-      fault => {
-        logger.debug("authenticateUser: failed")
-        None
-      },
-      event => Some(event)
-    )
-  }
 }

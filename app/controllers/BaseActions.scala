@@ -23,7 +23,7 @@ trait BaseActions {
   def Auth[A](p: BodyParser[A])(f: MyContext[A] => User => Result): Action[A] =
     MyActionHandler(p)(req => {
       val ctx = reqToCtx(req)
-      ctx.me.map(me => f(ctx)(me)).getOrElse(AuthController.authenticationFailed(ctx))
+      ctx.me.map(me => f(ctx)(me)).getOrElse(AuthController.loginFailed(ctx))
     })
 
   def reqToCtx[A](req: Request[A]): MyContext[A] = req.asInstanceOf[MyContext[A]]

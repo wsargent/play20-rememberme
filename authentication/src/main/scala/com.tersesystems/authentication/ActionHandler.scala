@@ -7,6 +7,8 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 trait ActionHandler[UserID, UserInfo] extends SessionSaver[UserID] {
 
+  def SESSION_ID : String
+
   def authenticationService: AuthenticationService[UserID]
 
   def userService : UserInfoService[UserID, UserInfo]
@@ -94,7 +96,7 @@ trait ActionHandler[UserID, UserInfo] extends SessionSaver[UserID] {
    */
   def withSessionCredentials[A](rawRequest: Request[A]): Option[Context[A, UserInfo]] = {
     for {
-      sessionId <- rawRequest.session.get("sessionId")
+      sessionId <- rawRequest.session.get(SESSION_ID)
       userInfo <- restoreFromSession(sessionId)
     } yield contextConverter(rawRequest, Some(userInfo))
   }
@@ -150,7 +152,7 @@ trait ActionHandler[UserID, UserInfo] extends SessionSaver[UserID] {
     // Defer the action until we have the authentication saved off...
     val userId : UserID = event.userId
     val sessionId = saveAuthentication(userId)(rawRequest)
-    val sessionCookie = SessionCookie("sessionId", sessionId)(rawRequest)
+    val sessionCookie = SessionCookie(SESSION_ID, sessionId)(rawRequest)
 
     // Create a new token on every cookie authentication, even if the series is the same.
     val rememberMe = RememberMe(userId, event.series, event.token)
