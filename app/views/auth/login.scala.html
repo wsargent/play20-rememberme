@@ -1,50 +1,50 @@
 @(form: Form[_])(implicit ctx: MyContext[_])
 
-@layout(title = "Sign In") {
+@layout() {
 <div class="span3">
-    &nbsp;
+  &nbsp;
 </div>
 <div class="span5">
-    <div class="well">
-        @helper.flash()
+  <div class="well">
+    @helper.flash()
 
-        @helper.form(action = routes.AuthController.authenticate, 'class -> "form-vertical") {
+    @helper.form(action = routes.AuthController.authenticate, 'class -> "form-vertical") {
 
-        @form.errors.map { e =>
-          <p class="error"><span class="label important">e.message</span></p>
-        }
+    @form.errors.map { e =>
+    <p class="error"><span class="label important">e.message</span></p>
+    }
 
-        <fieldset>
-            <div class="control-group">
+    <fieldset>
+      <div class="control-group">
 
-                <label class="control-label" for="email"></label>
+        <label class="control-label" for="email"></label>
 
-                <div class="controls">
-                    <input placeholder="Email" type="text" class="email" name="email" id="email"/>
-                </div>
+        <div class="controls">
+          <input placeholder="Email" type="text" class="email" name="email" id="email"/>
+        </div>
 
-                <label class="control-label" for="password"></label>
+        <label class="control-label" for="password"></label>
 
-                <div class="controls">
-                    <input placeholder="Password" type="password" class="password" name="password" id="password"/>
-                </div>
+        <div class="controls">
+          <input placeholder="Password" type="password" class="password" name="password" id="password"/>
+        </div>
 
-                <div class="controls">
-                    <input id="rememberMe" style="float: left; margin-right: 10px;" type="checkbox" name="rememberMe"
-                           value="true"/>
-                    <label class="control-label string optional" for="rememberMe"> Remember me</label>
-                </div>
+        <div class="controls">
+          <input id="rememberMe" style="float: left; margin-right: 10px;" type="checkbox" name="rememberMe"
+                 value="true"/>
+          <label class="control-label string optional" for="rememberMe"> Remember me</label>
+        </div>
 
-                <div class="actions">
-                    <input class="btn btn-primary" style="clear: left; width: 100%; height: 32px; font-size: 13px;"
-                           type="submit"
-                           name="commit" value="Sign In"/>
-                    <small><a href="@routes.AuthController.signup">Sign up?</a></small>
-                </div>
-            </div>
-        </fieldset>
-        }
-    </div>
+        <div class="actions">
+          <input class="btn btn-primary" style="clear: left; width: 100%; height: 32px; font-size: 13px;"
+                 type="submit"
+                 name="commit" value="Sign In"/>
+          <small><a href="@routes.SignupController.signup">Sign up?</a></small>
+        </div>
+      </div>
+    </fieldset>
+    }
+  </div>
 </div>
 
 }

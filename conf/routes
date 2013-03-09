@@ -8,12 +8,12 @@ GET     /                              controllers.Application.index
 # Authentication
 GET   /login                           controllers.AuthController.login
 POST  /login                           controllers.AuthController.authenticate
-GET   /logout                          controllers.AuthController.logout
+POST  /logout                          controllers.AuthController.logout
 
 # User signup
-GET   /signup                          controllers.AuthController.signup
-POST  /signup                          controllers.AuthController.signupPost
-GET   /signup/success                  controllers.AuthController.signupSuccess
+GET   /signup                          controllers.SignupController.signup
+POST  /signup                          controllers.SignupController.signupPost
+GET   /signup/success                  controllers.SignupController.signupSuccess
 
 # Suspicious activity
 GET   /suspicious                      controllers.AuthController.suspicious

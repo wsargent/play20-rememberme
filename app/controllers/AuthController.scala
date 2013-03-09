@@ -14,25 +14,11 @@ import security.{MySessionStore, MyAuthenticationService}
 
 object AuthController extends Controller with SessionSaver[String] with BaseActions {
 
-  val FLASH_INFO = "info"
-  val FLASH_ERROR = "error"
-  val FLASH_SUCCESS = "success"
-
-  def logger = Logger(this.getClass)
+  val logger = Logger(this.getClass)
 
   def sessionStore = MySessionStore
 
   def authenticationService = MyAuthenticationService
-
-    val signupForm = Form(
-      mapping(
-        "email" -> email,
-        "fullName" -> text,
-        "password" -> text(minLength = 4)
-      )(SignupData.apply)(_ => None)
-    )
-
-  case class SignupData(email: String, fullName:String, password: String)
 
   val loginForm = Form(mapping(
     "email" -> email,
@@ -76,39 +62,6 @@ object AuthController extends Controller with SessionSaver[String] with BaseActi
       gotoLogoutSucceeded(ctx)
   }
 
-  def signup = Open {
-    implicit ctx =>
-      Ok(html.auth.signup(signupForm))
-  }
-
-  def signupSuccess = Open {
-    implicit ctx =>
-      Ok(html.auth.signupSuccess())
-  }
-
-  def signupPost = Open {
-    implicit ctx =>
-      logger.debug("signupPost:")
-      signupForm.bindFromRequest.fold(
-        err => {
-          logger.error("err = " + err)
-          BadRequest(html.auth.signup(err))
-        },
-        data => {
-          User.register(data.email, data.fullName, data.password).fold(
-            fault => {
-              logger.error("error = " + fault)
-              val form = signupForm
-              BadRequest(html.auth.signup(form))
-            },
-            user => {
-              gotoSignupSucceeded(user.email)
-            }
-          )
-        }
-      )
-  }
-
   def logoutSucceeded(req: RequestHeader): PlainResult = {
     logger.debug("logoutSucceeded")
     Redirect(routes.Application.index())
@@ -139,23 +92,6 @@ object AuthController extends Controller with SessionSaver[String] with BaseActi
     // Append a session cookie here.
     val cookies: Seq[Cookie] = rememberMeCookie.toList :+ sessionCookie
     loginSucceeded(req) withCookies (cookies: _*)
-  }
-
-  def gotoSignupSucceeded[A](userId: String)(implicit req: RequestHeader) = {
-    logger.debug("gotoSignupSucceeded")
-    Redirect(routes.AuthController.signupSuccess())
-  }
-
-  def gotoConfirmSucceeded[A](userId: String)(implicit req: RequestHeader) = {
-    val sessionId = saveAuthentication(userId)
-    val flash = Flash(Map(FLASH_SUCCESS -> "You have been confirmed."))
-    Redirect(routes.Application.index()) withCookies SessionCookie("sessionId", sessionId) flashing (flash)
-  }
-
-  def gotoPasswordResetSucceeded[A](userId: String)(implicit req: RequestHeader) = {
-    val sessionId = saveAuthentication(userId)
-    val flash = Flash(Map(FLASH_SUCCESS -> "Your password has been reset."))
-    Redirect(routes.Application.index()) withCookies SessionCookie("sessionId", sessionId) flashing (flash)
   }
 
   def gotoLogoutSucceeded(implicit req: RequestHeader) = {

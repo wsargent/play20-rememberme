@@ -15,6 +15,7 @@ import models.User
  */
 object MyActionHandler extends ActionHandler[String, User]
 {
+  val SESSION_ID = "sessionId"
 
   val logger = Logger(this.getClass)
 

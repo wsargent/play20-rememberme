@@ -14,6 +14,7 @@ account.not.validated.check.mail=Account not validated. Check your emails.
 account.successfully.validated=Account successfully validated
 invalid.user.or.password=Invalid user or password
 youve.been.logged.out=You've been logged out
+
 error.sending.email=Error sending email
 error.sending.confirm.email=Error while sending confirmation mail
 error.email.already.exist=Email already exist
