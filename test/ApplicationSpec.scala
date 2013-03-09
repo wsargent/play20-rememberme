@@ -3,7 +3,7 @@ package test
 import org.specs2.mutable._
 
 import play.api._
-import mvc.{DiscardingCookie, Cookie}
+import play.api.mvc.Cookie
 import play.api.test._
 import play.api.test.Helpers._
 
@@ -127,15 +127,5 @@ class ApplicationSpec extends Specification
       }
     }
   }
-
-  //  # User signup
-  //  GET   /signup                          controllers.AuthController.signup
-  //  POST  /signup                          controllers.AuthController.signupPost
-  //  GET   /signup/success                  controllers.AuthController.signupSuccess
-
-  "Registration" should {
-
-  }
-
 
 }
