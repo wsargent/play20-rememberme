@@ -12,6 +12,7 @@ import security._
 
 import com.tersesystems.authentication.RememberMe
 import util.Random
+import controllers.routes
 
 /**
  * This class tests out the authentication module, primarily the AuthController to ensure that it does everything correctly
@@ -85,17 +86,10 @@ class ApplicationSpec extends Specification
           session(r).get(SESSION_ID) must beNone
           // Must have a discarding cookie
           cookies(r).get(RememberMe.COOKIE_NAME) must equalTo(Some(discardCookie))
-          status(r) must equalTo(SEE_OTHER)
-      }
-    }
 
-    "logout and flag a suspicious cookie" in running(fakeApp) {
-      route(postLogout.withFormUrlEncodedBody()) must beSome.which {
-        r =>
-          session(r).get(SESSION_ID) must beNone
-          // Must have a discarding cookie
-          cookies(r).get(RememberMe.COOKIE_NAME) must equalTo(Some(discardCookie))
+          // Should go back to the index page.
           status(r) must equalTo(SEE_OTHER)
+          redirectLocation(r) must equalTo(routes.Application.index())
       }
     }
   }
@@ -126,6 +120,41 @@ class ApplicationSpec extends Specification
           status(r) must equalTo(OK)
       }
     }
+
+    "logout and flag a suspicious cookie" in running(fakeApp) {
+      val user = User.create(User(name = "fullName", email = "email@example.com", password = "password"))
+
+      // Create the token...
+      val t = RememberMeToken.create(RememberMeToken(user.email, Random.nextLong(), Random.nextLong()))
+
+      // Create a token that is NOT the same as the series.
+      val rememberMe = RememberMe(user.email, series = t.series, token = Random.nextLong())
+      val rememberMeCookie = RememberMe.encodeAsCookie(rememberMe)
+      val result = route(getIndex.withCookies(rememberMeCookie))
+
+      result must beSome.which {
+        r =>
+          session(r).get(SESSION_ID) must beNone
+          // Must have a discarding cookie
+          cookies(r).get(RememberMe.COOKIE_NAME) must equalTo(Some(discardCookie))
+          status(r) must equalTo(SEE_OTHER)
+          // It should land on the "suspicious" page...
+          redirectLocation(r) must equalTo(routes.AuthController.suspicious())
+      }
+    }
+  }
+
+  "Asset Page" should {
+
+    "not have a session" in running(fakeApp) {
+      val result = route(FakeRequest(GET, "/assets/images/favicon.png"))
+      result must beSome.which {
+        r =>
+          session(r).get(SESSION_ID) must beNone
+          status(r) must equalTo(OK)
+      }
+    }
+
   }
 
 }
