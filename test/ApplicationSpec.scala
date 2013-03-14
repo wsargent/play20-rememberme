@@ -34,18 +34,9 @@ class ApplicationSpec extends Specification
     val postLogin = FakeRequest(POST, "/login")
     val postLogout = FakeRequest(POST, "/logout")
 
-    "reject login of non-existing user" in running(fakeApp) {
-      route(postLogin.withFormUrlEncodedBody(
-        ("email" -> "email@example.com"),
-        ("password" -> "password"))) must beSome.which {
-        r =>
-          flash(r).data must haveKey(controllers.FLASH_ERROR)
-          status(r) must equalTo(SEE_OTHER)
-      }
-    }
-
     "accept login of existing user" in running(fakeApp) {
-      val user = User(name = "fullName", email = "email@example.com", password = new Password("password"))
+      val password = MyPasswordService.encryptPassword("password")
+      val user = User(name = "fullName", email = "email@example.com", password = password)
       User.create(user)
 
       route(postLogin.withFormUrlEncodedBody(
@@ -60,7 +51,8 @@ class ApplicationSpec extends Specification
     }
 
     "accept login and set cookie of existing user" in running(fakeApp) {
-      val user = User.create(User(name = "fullName", email = "email@example.com", password = new Password("password")))
+      val password = MyPasswordService.encryptPassword("password")
+      val user = User.create(User(name = "fullName", email = "email@example.com", password = password))
 
       route(postLogin.withFormUrlEncodedBody(
         ("email" -> "email@example.com"),
@@ -80,6 +72,29 @@ class ApplicationSpec extends Specification
       }
     }
 
+    "reject login of non-existing user" in running(fakeApp) {
+      route(postLogin.withFormUrlEncodedBody(
+        ("email" -> "email@example.com"),
+        ("password" -> "password"))) must beSome.which {
+        r =>
+          flash(r).data must haveKey(controllers.FLASH_ERROR)
+          status(r) must equalTo(SEE_OTHER)
+      }
+    }
+
+    "reject login of user with wrong password" in running(fakeApp) {
+      val password = MyPasswordService.encryptPassword("password")
+      val user = User.create(User(name = "fullName", email = "email@example.com", password = password))
+
+      route(postLogin.withFormUrlEncodedBody(
+        ("email" -> "email@example.com"),
+        ("password" -> "invalidpassword"))) must beSome.which {
+        r =>
+          flash(r).data must haveKey(controllers.FLASH_ERROR)
+          status(r) must equalTo(SEE_OTHER)
+      }
+    }
+
     "log out an existing user" in running(fakeApp) {
       route(postLogout.withFormUrlEncodedBody()) must beSome.which {
         r =>
@@ -89,7 +104,7 @@ class ApplicationSpec extends Specification
 
           // Should go back to the index page.
           status(r) must equalTo(SEE_OTHER)
-          redirectLocation(r) must equalTo(routes.Application.index())
+          redirectLocation(r) must beSome.which { _ must equalTo(routes.Application.index().url) }
       }
     }
   }
@@ -139,7 +154,7 @@ class ApplicationSpec extends Specification
           cookies(r).get(RememberMe.COOKIE_NAME) must equalTo(Some(discardCookie))
           status(r) must equalTo(SEE_OTHER)
           // It should land on the "suspicious" page...
-          redirectLocation(r) must equalTo(routes.AuthController.suspicious())
+          redirectLocation(r) must beSome.which { _ must equalTo(routes.AuthController.suspicious().url) }
       }
     }
   }

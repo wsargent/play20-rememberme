@@ -32,12 +32,36 @@ class SignupControllerSpec extends Specification {
       }
     }
 
-    "register a user correctly" in running(fakeApp) {
+    "Should not register a user with a weak password" in running(fakeApp) {
       val postSignup = FakeRequest(POST, "/signup")
       route(postSignup.withFormUrlEncodedBody(
         ("fullName", "First Last"),
         ("email", "email@example.com"),
         ("password", "password")
+      )) must beSome.which {
+        r =>
+          status(r) must equalTo(BAD_REQUEST)
+      }
+    }
+
+    "Should not register a user with a bad email" in running(fakeApp) {
+      val postSignup = FakeRequest(POST, "/signup")
+      route(postSignup.withFormUrlEncodedBody(
+        ("fullName", "First Last"),
+        ("email", "email"),
+        ("password", "password")
+      )) must beSome.which {
+        r =>
+          status(r) must equalTo(BAD_REQUEST)
+      }
+    }
+
+    "register a user correctly" in running(fakeApp) {
+      val postSignup = FakeRequest(POST, "/signup")
+      route(postSignup.withFormUrlEncodedBody(
+        ("fullName", "First Last"),
+        ("email", "email@example.com"),
+        ("password", "7i)aKF^0(/g5W-wn921J")
       )) must beSome.which {
         r =>
           status(r) must equalTo(SEE_OTHER)
