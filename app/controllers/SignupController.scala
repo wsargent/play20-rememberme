@@ -2,7 +2,7 @@ package controllers
 
 import views.html
 import models.{Password, User}
-import play.api.mvc.{Flash, RequestHeader, Controller}
+import play.api.mvc.{RequestHeader, Controller}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.Logger
@@ -11,23 +11,25 @@ import com.tersesystems.authentication._
 import security.MySessionStore
 
 /**
+ * A basic sign up controller.  We use a weak password constraint here for ease
+ * of use, but you are encouraged to install "passwdqc" and"strongPassword" instead.
+ * See the BaseConstraints class for more details.
  *
  * @author wsargent
  */
 object SignupController extends Controller
-  with SessionSaver[String]
   with BaseConstraints
   with BaseActions
 {
   def sessionStore = MySessionStore
 
-  private val logger = Logger(this.getClass)
+  val logger = Logger(this.getClass)
 
   val signupForm = Form(
     mapping(
       "email" -> email,
       "fullName" -> text,
-      "password" -> password
+      "password" -> weakPassword
     )(SignupData.apply)(_ => None)
   )
 
@@ -49,7 +51,7 @@ object SignupController extends Controller
       try {
         signupForm.bindFromRequest.fold(
           err => {
-            logger.error("err = " + err)
+            logger.debug("err = " + err)
             BadRequest(html.signup.index(err))
           },
           data => {
@@ -65,12 +67,6 @@ object SignupController extends Controller
           Redirect(routes.SignupController.signup()) flashing (FLASH_ERROR -> errorMessage)
         }
       }
-  }
-
-  def gotoConfirmSucceeded[A](userId: String)(implicit req: RequestHeader) = {
-    val sessionId = saveAuthentication(userId)
-    val flash = Flash(Map(FLASH_SUCCESS -> "You have been confirmed."))
-    Redirect(routes.Application.index()) withCookies SessionCookie("sessionId", sessionId) flashing (flash)
   }
 
   def gotoSignupSucceeded[A](userId: String)(implicit req: RequestHeader) = {
