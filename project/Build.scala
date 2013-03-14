@@ -16,7 +16,7 @@ object ApplicationBuild extends Build {
   )
 
   // XXX You have to comment this out running "play idea", otherwise you get an exception
-  val module = Project(id = "remember-me", base = file("authentication"))
+  val authenticationModule = Project(id = "boilerplate", base = file("modules/authentication"))
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     resolvers += "jbcrypt repo" at "http://mvnrepository.com/",
@@ -26,6 +26,6 @@ object ApplicationBuild extends Build {
       "security.MyContext",
       "models.User"
     )
-  ).aggregate(module).dependsOn(module)
+  ).aggregate(authenticationModule).dependsOn(authenticationModule)
 
 }
