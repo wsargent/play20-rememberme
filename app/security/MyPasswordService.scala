@@ -11,12 +11,38 @@ import models.Password
  **/
 object MyPasswordService extends PasswordService[Password] {
 
+  private val BCRYPT_PATTERN = "\\A\\$2a?\\$\\d\\d\\$[./0-9A-Za-z]{53}".r
+
   def encryptPassword(plaintext: String) : Password = {
-    val hashed = BCrypt.hashpw(plaintext, BCrypt.gensalt())
+    // Really shouldn't be necessary...
+    if (plaintext == null || plaintext.isEmpty) {
+      throw new IllegalArgumentException("plaintext cannot be null or empty")
+    }
+
+    // You may want to fiddle with the strength and secure random of the salt.
+    val salt = BCrypt.gensalt()
+    val hashed = BCrypt.hashpw(plaintext, salt)
     new Password(hashed)
   }
 
+  /**
+   * Checks the plaintext against the hashed value in the database.
+   *
+   * @param plaintext
+   * @param hashed
+   * @return
+   */
   def passwordsMatch(plaintext: String, hashed: Password) : Boolean = {
-    BCrypt.checkpw(plaintext, hashed.underlying)
+    val underlying = hashed.underlying
+    if (underlying == null || underlying.isEmpty) {
+      throw new IllegalArgumentException("Encoded password cannot be null or empty")
+    }
+
+    underlying match {
+      case BCRYPT_PATTERN() => BCrypt.checkpw(plaintext, hashed.underlying)
+      case _ => {
+        throw new IllegalArgumentException("Encoded password does not look like BCrypt")
+      }
+    }
   }
 }
