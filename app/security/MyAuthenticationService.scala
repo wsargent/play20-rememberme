@@ -8,14 +8,14 @@ import play.api.Logger
 import models.{RememberMeToken, User}
 
 /**
- * An example of authentication service.  The logic flow here is important.
+ * An example of an authentication service.  This is where we authenticate with either a straight username and password, or with
+ * a session cookie.
  *
- * @author wsargent
- * @since 8/14/12
+ * @see http://jaspan.com/improved_persistent_login_cookie_best_practice
  */
 object MyAuthenticationService extends AuthenticationService[String] {
 
-  private lazy val logger = Logger("models.BasicAuthenticationService")
+  private val logger = Logger(this.getClass)
 
   /**
    * Authenticate a User.

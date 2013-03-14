@@ -26,7 +26,7 @@ class ApplicationSpec extends Specification
   //  POST  /login                           controllers.AuthController.authenticate
   //  GET   /logout                          controllers.AuthController.logout
 
-  val SESSION_ID = MyActionHandler.SESSION_ID
+  val SESSION_ID = MyAuthenticationHandler.SESSION_ID
 
   val discardCookie = Cookie(RememberMe.COOKIE_NAME, "", Some(0), "/", None, secure = false, httpOnly = true)
 

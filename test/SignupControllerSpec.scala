@@ -4,7 +4,7 @@ import org.specs2.mutable._
 
 import play.api.test._
 import play.api.test.Helpers._
-import security.MyActionHandler
+import security.MyAuthenticationHandler
 
 /**
  *
@@ -15,7 +15,7 @@ class SignupControllerSpec extends Specification {
 
   def fakeApp = FakeApplication(additionalConfiguration = inMemoryDatabase("test"))
 
-  val SESSION_ID = MyActionHandler.SESSION_ID
+  val SESSION_ID = MyAuthenticationHandler.SESSION_ID
 
     //  # User signup
   //  GET   /signup                          controllers.AuthController.signup

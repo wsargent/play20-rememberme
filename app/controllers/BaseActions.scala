@@ -4,7 +4,7 @@ import play.api.mvc._
 import play.api.mvc.Results._
 
 import models.User
-import security.{MyActionHandler, MyContext}
+import security.{MyAuthenticationHandler, MyContext}
 
 /**
  * Some basic actions that expose the Context to the internal action...
@@ -15,13 +15,13 @@ trait BaseActions {
     Open(BodyParsers.parse.anyContent)(f)
 
   def Open[A](p: BodyParser[A])(f: MyContext[A] => Result): Action[A] =
-    MyActionHandler(p)(req => {
+    MyAuthenticationHandler(p)(req => {
       val ctx = reqToCtx(req)
       f(ctx)
     })
 
   def Auth[A](p: BodyParser[A])(f: MyContext[A] => User => Result): Action[A] =
-    MyActionHandler(p)(req => {
+    MyAuthenticationHandler(p)(req => {
       val ctx = reqToCtx(req)
       ctx.me.map(me => f(ctx)(me)).getOrElse(AuthController.loginFailed(ctx))
     })

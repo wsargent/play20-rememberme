@@ -5,7 +5,7 @@ import play.api.Logger
 
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
-trait ActionHandler[UserID, UserInfo] extends SessionSaver[UserID] {
+trait AuthenticationHandler[UserID, UserInfo] extends SessionSaver[UserID] {
 
   def SESSION_ID : String
 

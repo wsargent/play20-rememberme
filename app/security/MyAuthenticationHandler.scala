@@ -11,13 +11,16 @@ import controllers.AuthController
 import models.User
 
 /**
- * An action handler with all the dependencies resolved.
+ * An action handler with all the dependencies resolved.  This will authenticate a user
+ * with the user id and user types resolved, and hook up the dependencies.
+ *
+ * This class hooks up to the BaseActions trait in the controller.
  */
-object MyActionHandler extends ActionHandler[String, User]
+object MyAuthenticationHandler extends AuthenticationHandler[String, User]
 {
-  val SESSION_ID = "sessionId"
-
   val logger = Logger(this.getClass)
+
+  val SESSION_ID = "sessionId"
 
   val authenticationService = MyAuthenticationService
 

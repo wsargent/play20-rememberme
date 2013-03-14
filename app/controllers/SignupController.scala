@@ -14,21 +14,21 @@ import security.MySessionStore
  *
  * @author wsargent
  */
-object SignupController extends Controller with SessionSaver[String] with BaseActions {
-
+object SignupController extends Controller with SessionSaver[String] with BaseActions
+{
   def sessionStore = MySessionStore
 
-  val logger = Logger(this.getClass)
+  private val logger = Logger(this.getClass)
 
   val signupForm = Form(
     mapping(
       "email" -> email,
       "fullName" -> text,
-      "password" -> text(minLength = 4)
+      "password" -> text(minLength = 8)
     )(SignupData.apply)(_ => None)
   )
 
-case class SignupData(email: String, fullName:String, password: String)
+  case class SignupData(email: String, fullName: String, password: String)
 
   def signup = Open {
     implicit ctx =>
@@ -49,16 +49,16 @@ case class SignupData(email: String, fullName:String, password: String)
           BadRequest(html.signup.index(err))
         },
         data => {
-          User.register(data.email, data.fullName, data.password).fold(
-            fault => {
-              logger.error("error = " + fault)
-              val form = signupForm
-              BadRequest(html.signup.index(form))
-            },
-            user => {
-              gotoSignupSucceeded(user.email)
+          try {
+            val user = User.register(data.email, data.fullName, data.password)
+            gotoSignupSucceeded(user.email)
+          } catch {
+            case e: Exception => {
+              logger.error("error = ", e)
+              val errorMessage = "Internal error, could not register"
+              Redirect(routes.SignupController.signup()) flashing (FLASH_ERROR -> errorMessage)
             }
-          )
+          }
         }
       )
   }

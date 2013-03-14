@@ -4,9 +4,7 @@ import models.User
 import play.api.mvc.{Request, WrappedRequest}
 
 /**
- * An example of a wrapped context.
+ * An example of a context class that wraps a request.  You should put your
  *
- * @author wsargent
- * @since 8/15/12
  */
 case class MyContext[A](request: Request[A], me: Option[User]) extends WrappedRequest[A](request) with com.tersesystems.authentication.Context[A, User]
