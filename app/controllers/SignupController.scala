@@ -1,7 +1,7 @@
 package controllers
 
 import views.html
-import models.User
+import models.{Password, User}
 import play.api.mvc.{Flash, RequestHeader, Controller}
 import play.api.data.Form
 import play.api.data.Forms._
@@ -14,7 +14,10 @@ import security.MySessionStore
  *
  * @author wsargent
  */
-object SignupController extends Controller with SessionSaver[String] with BaseActions
+object SignupController extends Controller
+  with SessionSaver[String]
+  with BaseConstraints
+  with BaseActions
 {
   def sessionStore = MySessionStore
 
@@ -24,7 +27,7 @@ object SignupController extends Controller with SessionSaver[String] with BaseAc
     mapping(
       "email" -> email,
       "fullName" -> text,
-      "password" -> text(minLength = 8)
+      "password" -> password
     )(SignupData.apply)(_ => None)
   )
 
@@ -43,24 +46,25 @@ object SignupController extends Controller with SessionSaver[String] with BaseAc
   def signupPost = Open {
     implicit ctx =>
       logger.debug("signupPost:")
-      signupForm.bindFromRequest.fold(
-        err => {
-          logger.error("err = " + err)
-          BadRequest(html.signup.index(err))
-        },
-        data => {
-          try {
-            val user = User.register(data.email, data.fullName, data.password)
+      try {
+        signupForm.bindFromRequest.fold(
+          err => {
+            logger.error("err = " + err)
+            BadRequest(html.signup.index(err))
+          },
+          data => {
+            val password = Password.parse(data.password)
+            val user = User.register(data.email, data.fullName, password)
             gotoSignupSucceeded(user.email)
-          } catch {
-            case e: Exception => {
-              logger.error("error = ", e)
-              val errorMessage = "Internal error, could not register"
-              Redirect(routes.SignupController.signup()) flashing (FLASH_ERROR -> errorMessage)
-            }
           }
+        )
+      } catch {
+        case e: Exception => {
+          logger.error("error = ", e)
+          val errorMessage = "Internal error, could not register"
+          Redirect(routes.SignupController.signup()) flashing (FLASH_ERROR -> errorMessage)
         }
-      )
+      }
   }
 
   def gotoConfirmSucceeded[A](userId: String)(implicit req: RequestHeader) = {

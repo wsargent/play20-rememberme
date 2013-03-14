@@ -8,14 +8,14 @@ import anorm.SqlParser._
 
 import com.tersesystems.authentication.UserInfoService
 
-case class User(email: String, name: String, password: String)
+case class User(email: String, name: String, password: Password)
 
 /**
  * Taken straight from the example Zentasks project.
  */
 object User extends UserInfoService[String, User] {
 
-  def register(email: String, name:String, password: String) : User = {
+  def register(email: String, name:String, password: Password) : User = {
     val user = User(email, name, password)
     create(user)
   }
@@ -29,7 +29,7 @@ object User extends UserInfoService[String, User] {
     get[String]("user.email") ~
       get[String]("user.name") ~
       get[String]("user.password") map {
-      case email ~ name ~ password => User(email, name, password)
+      case email ~ name ~ password => User(email, name, new Password(password))
     }
   }
 
@@ -72,30 +72,12 @@ object User extends UserInfoService[String, User] {
         ).on(
           'email -> user.email,
           'name -> user.name,
-          'password -> user.password
+          'password -> user.password.underlying
         ).executeUpdate()
 
         user
     }
   }
-
-  /**
-   * Authenticate a User.
-   */
-  def authenticate(email: String, password: String): Option[User] = {
-    DB.withConnection { implicit connection =>
-      SQL(
-        """
-         select * from user where
-         email = {email} and password = {password}
-        """
-      ).on(
-        'email -> email,
-        'password -> password
-      ).as(User.simple.singleOpt)
-    }
-  }
-
 
   def lookup(userId: String) = findByEmail(userId)
 }

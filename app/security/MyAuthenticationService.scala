@@ -17,12 +17,22 @@ object MyAuthenticationService extends AuthenticationService[String] {
 
   private val logger = Logger(this.getClass)
 
+  def passwordService = MyPasswordService
+
   /**
    * Authenticate a User.
    */
-  def authenticate(email: String, password: String, rememberMe: Boolean): Either[AuthenticationFault, UserAuthenticatedEvent[String]] = {
+  def authenticate(email: String, plaintext: String, rememberMe: Boolean): Either[AuthenticationFault, UserAuthenticatedEvent[String]] = {
     logger.debug("authenticate")
-    val userOption = User.authenticate(email, password)
+
+    // check the email and password match.
+    val userOption = User.findByEmail(email).flatMap { user =>
+      if (passwordService.passwordsMatch(plaintext, user.password)) {
+        Some(user)
+      } else {
+        None
+      }
+    }
 
     userOption.map {
       user =>

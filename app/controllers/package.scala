@@ -1,3 +1,6 @@
+import play.api.data.Mapping
+import play.api.data.validation.Constraints
+
 /**
  *
  * @author wsargent
