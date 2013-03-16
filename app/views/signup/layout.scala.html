@@ -1,6 +1,6 @@
-@()(body: Html)(implicit ctx: MyContext[_])
+@(moreJs:Html = Html(""))(body: Html)(implicit ctx: MyContext[_])
 
-@base.layout() {
+@base.layout(moreJs = moreJs) {
 
 <div class="container">
   <div class="row">

@@ -1,31 +1,108 @@
 @(form: Form[_])(implicit ctx: MyContext[_])
-@implicitFieldConstructor = @{ helper.FieldConstructor(fragments.twitterBootstrapInput.f) }
+@implicitFieldConstructor = @{
+  helper.FieldConstructor(fragments.twitterBootstrapInput.f)
+}
 
-@auth.layout() {
-<div class="span3">
-  &nbsp;
-</div>
-<div class="span7">
+@moreJs = {
+  <script type="text/javascript" src="@routes.Assets.at("javascripts/zxcvbn-async.js")"></script>
+  <script type='text/javascript'>
+    $(function(){
+      // https://tech.dropbox.com/2012/04/zxcvbn-realistic-password-strength-estimation/
+      $('.password').keyup(function() {
+        var textValue = $(this).val();
+        var result = zxcvbn(textValue);
+        var msg = "";
+        if (result.score == 0) {
+          msg += "<span style='color:red'>Very Weak</span>"
+        } else if (result.score == 1) {
+          msg += "<span style='color:#ff8982'>Weak</span>";
+        } else if (result.score == 2) {
+          msg += "<span style='color:#808080'>So so</span>";
+        } else if (result.score == 3) {
+          msg += "<span style='color:#7bee6c'>Good</span>";
+        }  else if (result.score == 4) {
+          msg += "<span style='color:green'>Great!</span>";
+        }
+        $('#result').html(msg);
+        //use this result as you like
+        /*
+        result.entropy            # bits
+        result.crack_time         # estimation of actual crack time, in seconds.
+        result.crack_time_display # same crack time, as a friendlier string:
+        # "instant", "6 minutes", "centuries", etc.
+        result.score              # [0,1,2,3,4] if crack time is less than
+        # [10**2, 10**4, 10**6, 10**8, Infinity].
+        # (useful for implementing a strength bar.)
+        result.match_sequence     # the list of patterns that zxcvbn based the
+        # entropy calculation on.
+        result.calculation_time   # how long it took to calculate an answer,
+        # in milliseconds. usually only a few ms.
+        */
+      });
+    });
+  </script>
+}
+
+@auth.layout(moreJs = moreJs) {
   <div class="well">
-    <h1>Sign Up</h1>
+    <div class="row">
+      <div class="span12">
+        <div class="row">
+          <div class="span2 offset4">
+            <h1 style="margin-bottom: 25px"> Sign Up </h1>
+          </div>
+        </div>
+        <div class="row">
+          <div class="span10 offset2">
+            @helper.flash()
 
-    @helper.flash()
+            @helper.form(action = routes.SignupController.signupPost(), 'class -> "form-horizontal") {
 
-    @helper.form(action = routes.SignupController.signupPost, 'class -> "form-vertical") {
+              @form.globalErrors.map { e =>
+                <p class="error">
+                  <span class="label important"> e.message </span>
+                </p>
+              }
 
-      @form.globalErrors.map { e =>
-        <p class="error"><span class="label important">e.message</span></p>
-      }
+              <fieldset>
 
-      <fieldset>
-        @auth.formFields(form("fullName"), form("email"), form("password"))
-      </fieldset>
+                @helper.inputText(
+                  form("fullName"),
+                  '_label -> "Full Name",
+                  'placeholder -> "Full Name"
+                )
 
-      <div>
-        <input type="submit" class="btn-primary" value="Sign Up" class="submit">
-        <span class="alternative">Already have an account? <a href="@routes.AuthController.login">Sign In</a></span>
+                @helper.inputText(
+                  form("email"),
+                  '_label -> Messages("email"),
+                  '_help -> "",
+                  'placeholder -> "Please enter your Email"
+                )
+
+                <div class="control-group ">
+                  <label class="control-label" for="password">Password</label>
+                  <div class="controls">
+                    <input type="password" id="password" name="password" class="password">
+                    <p class="help-block" style="height:20px">At least 8 characters. <a href="http://lifehacker.com/5937303/your-clever-password-tricks-arent-protecting-you-from-todays-hackers">Pass phrases are better.</a></p>
+                    <p id="result" class="text-right" style="height:20px"></p>
+                  </div>
+                </div>
+              </fieldset>
+
+              <div class="row" style="margin-bottom: 25px;">
+                <div class="span3 offset2">
+                  <input type="submit" class="btn-primary btn-large" value="Sign Up" class="submit">
+                </div>
+              </div>
+              <div class="row">
+                <div class="span3 offset2">
+                  <span class="alternative"> Already have an account? <a href="@routes.AuthController.login"> Sign In </a> </span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
       </div>
-    }
+    </div>
   </div>
-</div>
 }
