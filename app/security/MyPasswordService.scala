@@ -2,18 +2,16 @@ package security
 
 import org.mindrot.jbcrypt.BCrypt
 import com.tersesystems.authentication.PasswordService
-import models.Password
+import models.EncryptedPassword
 
 /**
  * A password services that uses <a href="http://www.mindrot.org/projects/jBCrypt/">jBCrypt</a>.
  *
  *
  **/
-object MyPasswordService extends PasswordService[Password] {
+object MyPasswordService extends PasswordService[EncryptedPassword] {
 
-  private val BCRYPT_PATTERN = "\\A\\$2a?\\$\\d\\d\\$[./0-9A-Za-z]{53}".r
-
-  def encryptPassword(plaintext: String) : Password = {
+  def encryptPassword(plaintext: String) : EncryptedPassword = {
     // Really shouldn't be necessary...
     if (plaintext == null || plaintext.isEmpty) {
       throw new IllegalArgumentException("plaintext cannot be null or empty")
@@ -22,7 +20,7 @@ object MyPasswordService extends PasswordService[Password] {
     // You may want to fiddle with the strength and secure random of the salt.
     val salt = BCrypt.gensalt()
     val hashed = BCrypt.hashpw(plaintext, salt)
-    new Password(hashed)
+    new EncryptedPassword(hashed)
   }
 
   /**
@@ -32,17 +30,11 @@ object MyPasswordService extends PasswordService[Password] {
    * @param hashed
    * @return
    */
-  def passwordsMatch(plaintext: String, hashed: Password) : Boolean = {
-    val underlying = hashed.underlying
-    if (underlying == null || underlying.isEmpty) {
+  def passwordsMatch(plaintext: String, hashed: EncryptedPassword) : Boolean = {
+    if (hashed == null) {
       throw new IllegalArgumentException("Encoded password cannot be null or empty")
     }
 
-    underlying match {
-      case BCRYPT_PATTERN() => BCrypt.checkpw(plaintext, hashed.underlying)
-      case _ => {
-        throw new IllegalArgumentException("Encoded password does not look like BCrypt")
-      }
-    }
+    BCrypt.checkpw(plaintext, hashed.underlying)
   }
 }

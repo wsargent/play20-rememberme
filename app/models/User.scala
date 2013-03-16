@@ -7,16 +7,20 @@ import anorm._
 import anorm.SqlParser._
 
 import com.tersesystems.authentication.UserInfoService
+import security.MyPasswordService
 
-case class User(email: String, name: String, password: Password)
+case class User(email: String, name: String, password: EncryptedPassword)
 
 /**
  * Taken straight from the example Zentasks project.
  */
 object User extends UserInfoService[String, User] {
 
-  def register(email: String, name:String, password: Password) : User = {
-    val user = User(email, name, password)
+  val passwordService = MyPasswordService
+
+  def register(email: String, name:String, password: String) : User = {
+    val encryptedPassword = passwordService.encryptPassword(password)
+    val user = User(email, name, encryptedPassword)
     create(user)
   }
 
@@ -29,7 +33,10 @@ object User extends UserInfoService[String, User] {
     get[String]("user.email") ~
       get[String]("user.name") ~
       get[String]("user.password") map {
-      case email ~ name ~ password => User(email, name, new Password(password))
+      case email ~ name ~ password => {
+        val encryptedPassword = EncryptedPassword.parse(password)
+        User(email, name, encryptedPassword)
+      }
     }
   }
 

@@ -1,7 +1,7 @@
 package controllers
 
 import views.html
-import models.{Password, User}
+import models.{EncryptedPassword, User}
 import play.api.mvc.{RequestHeader, Controller}
 import play.api.data.Form
 import play.api.data.Forms._
@@ -55,8 +55,7 @@ object SignupController extends Controller
             BadRequest(html.signup.index(err))
           },
           data => {
-            val password = Password.parse(data.password)
-            val user = User.register(data.email, data.fullName, password)
+            val user = User.register(data.email, data.fullName, data.password)
             gotoSignupSucceeded(user.email)
           }
         )

@@ -50,21 +50,28 @@ object AuthController extends Controller with SessionSaver[String] with BaseActi
   // POST
   def authenticate = Open {
     implicit ctx =>
-      loginForm.bindFromRequest.fold(
-        err => {
-          logger.debug("Bad request: err = " + err)
-          loginFailed(ctx)
-        },
-        eventOption => {
-          eventOption.map { event =>
-            gotoLoginSucceeded(event.userId, event.series, event.token)
-          }.getOrElse {
-            // No event found, something bad happened.
-            logger.error("authenticate: could not log in")
+      try {
+        loginForm.bindFromRequest.fold(
+          err => {
+            logger.debug("Bad request: err = " + err)
             loginFailed(ctx)
+          },
+          eventOption => {
+            eventOption.map { event =>
+              gotoLoginSucceeded(event.userId, event.series, event.token)
+            }.getOrElse {
+              // No event found, something bad happened.
+              logger.error("authenticate: could not log in")
+              loginFailed(ctx)
+            }
           }
+        )
+      } catch {
+        case e:Exception => {
+          logger.error("Uncaught exception", e)
+          loginFailed(ctx)
         }
-      )
+      }
   }
 
   def loginSucceeded(req: RequestHeader): PlainResult = {

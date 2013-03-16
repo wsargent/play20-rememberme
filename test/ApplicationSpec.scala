@@ -2,7 +2,6 @@ package test
 
 import org.specs2.mutable._
 
-import play.api._
 import play.api.mvc.Cookie
 import play.api.test._
 import play.api.test.Helpers._
@@ -123,7 +122,8 @@ class ApplicationSpec extends Specification
 
     "be able to see the index page as logged in with cookie" in running(fakeApp) {
       // Create a user and a remember me cookie to make things work.
-      val user = User.create(User(name = "fullName", email = "email@example.com", password = new Password("password")))
+      val password = MyPasswordService.encryptPassword("password")
+      val user = User.create(User(name = "fullName", email = "email@example.com", password = password))
       val t = RememberMeToken.create(RememberMeToken(user.email, Random.nextLong(), Random.nextLong()))
 
       val rememberMe = RememberMe(user.email, series = t.series, token = t.token)
@@ -137,7 +137,8 @@ class ApplicationSpec extends Specification
     }
 
     "logout and flag a suspicious cookie" in running(fakeApp) {
-      val user = User.create(User(name = "fullName", email = "email@example.com", password = new Password("password")))
+      val password = MyPasswordService.encryptPassword("password")
+      val user = User.create(User(name = "fullName", email = "email@example.com", password = password))
 
       // Create the token...
       val t = RememberMeToken.create(RememberMeToken(user.email, Random.nextLong(), Random.nextLong()))

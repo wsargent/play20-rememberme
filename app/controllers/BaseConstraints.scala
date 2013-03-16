@@ -33,6 +33,8 @@ trait BaseConstraints
 {
   def logger: Logger
 
+  val MIN_PASSWORD_LENGTH = 8
+
   val internalPasswordConstraint: Constraint[String] = Constraint("constraints.internalPassword")({
     plaintext =>
       val errors = internalPasswordChecks(plaintext)
@@ -58,12 +60,12 @@ trait BaseConstraints
   /**
    * Uses a weak password checker for validation.
    */
-  val weakPassword: Mapping[String] = nonEmptyText(minLength = models.Password.MIN_PASSWORD_LENGTH).verifying(internalPasswordConstraint)
+  val weakPassword: Mapping[String] = nonEmptyText(minLength = MIN_PASSWORD_LENGTH).verifying(internalPasswordConstraint)
 
   /**
    * Uses a strong password checker for validation.
    */
-  val strongPassword: Mapping[String] = nonEmptyText(minLength = models.Password.MIN_PASSWORD_LENGTH).verifying(externalPasswordConstraint)
+  val strongPassword: Mapping[String] = nonEmptyText(minLength = MIN_PASSWORD_LENGTH).verifying(externalPasswordConstraint)
 
   /**
    * An example of an internal password check, for when you don't want a dependency on passwdqc.
