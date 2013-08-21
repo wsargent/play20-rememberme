@@ -5,6 +5,9 @@
 # Home page
 GET     /                              controllers.Application.index
 
+# Authenticated user info page
+GET     /me                            controllers.Application.userPage
+
 # Authentication
 GET   /login                           controllers.AuthController.login
 POST  /login                           controllers.AuthController.authenticate

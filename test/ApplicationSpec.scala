@@ -44,7 +44,7 @@ class ApplicationSpec extends Specification
         r =>
           session(r).get(SESSION_ID) must beSome
           cookies(r).get(RememberMe.COOKIE_NAME) must beNone
-          flash(r).data must not haveKey (controllers.FLASH_ERROR)
+          flash(r).data must not haveKey (controllers.FlashNames.ERROR)
           status(r) must equalTo(SEE_OTHER)
       }
     }
@@ -66,7 +66,7 @@ class ApplicationSpec extends Specification
           rememberMe.series must beSome
           rememberMe.token must beSome
 
-          flash(r).data must not haveKey (controllers.FLASH_ERROR)
+          flash(r).data must not haveKey (controllers.FlashNames.ERROR)
           status(r) must equalTo(SEE_OTHER)
       }
     }
@@ -76,7 +76,7 @@ class ApplicationSpec extends Specification
         ("email" -> "email@example.com"),
         ("password" -> "password"))) must beSome.which {
         r =>
-          flash(r).data must haveKey(controllers.FLASH_ERROR)
+          flash(r).data must haveKey(controllers.FlashNames.ERROR)
           status(r) must equalTo(SEE_OTHER)
       }
     }
@@ -89,7 +89,7 @@ class ApplicationSpec extends Specification
         ("email" -> "email@example.com"),
         ("password" -> "invalidpassword"))) must beSome.which {
         r =>
-          flash(r).data must haveKey(controllers.FLASH_ERROR)
+          flash(r).data must haveKey(controllers.FlashNames.ERROR)
           status(r) must equalTo(SEE_OTHER)
       }
     }

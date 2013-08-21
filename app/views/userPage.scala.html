@@ -1,0 +1,20 @@
+@()(implicit ctx: MyContext[_], usr: User)
+
+@base.layout() {
+  <div class="container">
+    <div class="row">
+      <div class="span12">
+        <div class="well" style="height: 600px">
+          <h1 style="text-align: center">User Page</h1>
+
+          <p style="font-size: 20px; text-align: center; margin-top: 15px">
+            <em>Name:</em><br>
+            @{usr.name}<br>
+            <em>email:</em><br>
+            @{usr.email}<br>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+}

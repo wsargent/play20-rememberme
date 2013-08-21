@@ -101,7 +101,7 @@ object AuthController extends Controller with SessionSaver[String] with BaseActi
   def loginFailed(implicit req: RequestHeader): PlainResult = {
     logger.debug("authenticationFailed: " + req)
     val cookies = DiscardingCookie(RememberMe.COOKIE_NAME)
-    Redirect(routes.AuthController.login()) discardingCookies (cookies) flashing (FLASH_ERROR -> "Cannot login with username/password")
+    Redirect(routes.AuthController.login()) discardingCookies (cookies) flashing (FlashNames.ERROR -> "Cannot login with username/password")
   }
 
   //---------------------------------------------------------------------------

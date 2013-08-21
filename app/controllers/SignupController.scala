@@ -63,7 +63,7 @@ object SignupController extends Controller
         case e: Exception => {
           logger.error("error = ", e)
           val errorMessage = "Internal error, could not register"
-          Redirect(routes.SignupController.signup()) flashing (FLASH_ERROR -> errorMessage)
+          Redirect(routes.SignupController.signup()) flashing (FlashNames.ERROR -> errorMessage)
         }
       }
   }
