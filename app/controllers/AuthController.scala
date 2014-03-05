@@ -74,7 +74,7 @@ object AuthController extends Controller with SessionSaver[String] with BaseActi
       }
   }
 
-  def loginSucceeded(req: RequestHeader): PlainResult = {
+  def loginSucceeded(req: RequestHeader): SimpleResult = {
     val uri = req.session.get("access_uri").getOrElse(routes.Application.index().url)
     req.session - "access_uri"
     Redirect(uri)
@@ -98,7 +98,7 @@ object AuthController extends Controller with SessionSaver[String] with BaseActi
     loginSucceeded(req) withCookies (cookies: _*)
   }
 
-  def loginFailed(implicit req: RequestHeader): PlainResult = {
+  def loginFailed(implicit req: RequestHeader): SimpleResult = {
     logger.debug("authenticationFailed: " + req)
     val cookies = DiscardingCookie(RememberMe.COOKIE_NAME)
     Redirect(routes.AuthController.login()) discardingCookies (cookies) flashing (FLASH_ERROR -> "Cannot login with username/password")
@@ -112,7 +112,7 @@ object AuthController extends Controller with SessionSaver[String] with BaseActi
       gotoLogoutSucceeded(ctx)
   }
 
-  def logoutSucceeded(req: RequestHeader): PlainResult = {
+  def logoutSucceeded(req: RequestHeader): SimpleResult = {
     logger.debug("logoutSucceeded")
     Redirect(routes.Application.index())
   }
@@ -133,7 +133,7 @@ object AuthController extends Controller with SessionSaver[String] with BaseActi
       Ok(html.auth.suspicious())
   }
 
-  def suspiciousActivity(implicit req: RequestHeader): PlainResult = {
+  def suspiciousActivity(implicit req: RequestHeader): SimpleResult = {
     Redirect(routes.AuthController.suspicious())
   }
 

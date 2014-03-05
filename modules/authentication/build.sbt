@@ -9,7 +9,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play" % "2.2.0"
+  "com.typesafe.play" %% "play" % "2.2.2"
 )
 
 organization := "com.tersesystems"

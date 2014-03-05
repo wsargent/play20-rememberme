@@ -12,7 +12,8 @@ object ApplicationBuild extends Build {
    "org.mindrot" % "jbcrypt" % "0.3m",
    jdbc,
    anorm,
-   filters
+   filters,
+   cache
   )
 
   // XXX You have to comment this out running "play idea", otherwise you get an exception
