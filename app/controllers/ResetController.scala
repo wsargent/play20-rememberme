@@ -14,7 +14,7 @@ object ResetController extends Controller with SessionSaver[String] {
 
   def gotoPasswordResetSucceeded[A](userId: String)(implicit req: RequestHeader) = {
     val sessionId = saveAuthentication(userId)
-    val flash = Flash(Map(FLASH_SUCCESS -> "Your password has been reset."))
+    val flash = Flash(Map(FlashNames.SUCCESS -> "Your password has been reset."))
     Redirect(routes.Application.index()) withCookies SessionCookie("sessionId", sessionId) flashing (flash)
   }
 

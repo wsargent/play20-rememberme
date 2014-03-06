@@ -10,4 +10,11 @@ object Application extends Controller with BaseActions {
       Ok(html.index())
   }
 
+  def userPage = Auth(parse.anyContent) {
+    implicit ctx => {
+      implicit usr => {
+        Ok(html.userPage())
+      }
+    }
+  }
 }
